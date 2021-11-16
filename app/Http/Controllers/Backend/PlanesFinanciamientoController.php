@@ -42,13 +42,18 @@ class PlanesFinanciamientoController extends Controller
         $this->cuota_mensual = 0;
     }
 
-    public function planFinanciamientoSiempreNuevo(TipoFinanciamiento $tipoFinanciamiento, $monto_total, $plazo)
+    public function planFinanciamientoSiempreNuevo(TipoFinanciamiento $tipoFinanciamiento, $monto_total, $plazo, $cuota_entrada)
     {
         $this->clear();
         $this->monto_total = floatval($monto_total);
 
         if ($this->setParametrosTipoFinanciamiento($tipoFinanciamiento, $plazo)) {
-            $this->getCalculoCuotaInicial();
+            if (!$cuota_entrada) {
+                $this->getCalculoCuotaInicial();
+            } else {
+                $this->cuota_entrada = floatval($cuota_entrada);
+            }
+
             $this->getCalculoCuotaFinal();
             $this->va();
             $this->getCalculoPagoMensual();
@@ -84,6 +89,7 @@ class PlanesFinanciamientoController extends Controller
     public function getCalculoCuotaInicial()
     {
         $this->cuota_entrada = ($this->monto_total * $this->porcentaje_cuota_entrada) / 100;
+        return $this->cuota_entrada;
     }
 
     /**
@@ -124,7 +130,8 @@ class PlanesFinanciamientoController extends Controller
             'porcentaje_cuota_entrada' => $this->porcentaje_cuota_entrada,
             'porcentaje_cuota_final' => $this->porcentaje_cuota_final,
             'plazo' => $this->plazo,
-            'cuota_entrada' => $this->cuota_entrada,
+            'cuota_entrada_user' => $this->cuota_entrada,
+            'cuota_entrada' => $this->getCalculoCuotaInicial(),
             'cuota_final' => $this->cuota_final,
             'tasa_financiamiento' => $this->tasa_financiamiento,
             'tasa_interes' => $this->tasa_interes,
@@ -136,12 +143,17 @@ class PlanesFinanciamientoController extends Controller
         return $data;
     }
 
-    public function planFinanciamientoTradicional(TipoFinanciamiento $tipoFinanciamiento, $monto_total, $plazo)
+    public function planFinanciamientoTradicional(TipoFinanciamiento $tipoFinanciamiento, $monto_total, $plazo, $cuota_entrada)
     {
         $this->clear();
         $this->monto_total = floatval($monto_total);
         if ($this->setParametrosTipoFinanciamiento($tipoFinanciamiento, $plazo)) {
-            $this->getCalculoCuotaInicial();
+            if (!$cuota_entrada) {
+                $this->getCalculoCuotaInicial();
+            } else {
+                $this->cuota_entrada = floatval($cuota_entrada);
+            }
+
             $this->getCalculoMontoFinanciar();
 
             $this->pago($this->monto_total);
