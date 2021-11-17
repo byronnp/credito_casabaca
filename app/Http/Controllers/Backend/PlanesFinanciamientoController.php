@@ -46,12 +46,11 @@ class PlanesFinanciamientoController extends Controller
     {
         $this->clear();
         $this->monto_total = floatval($monto_total);
+        $this->cuota_entrada = floatval($cuota_entrada);
 
         if ($this->setParametrosTipoFinanciamiento($tipoFinanciamiento, $plazo)) {
             if (!$cuota_entrada) {
                 $this->getCalculoCuotaInicial();
-            } else {
-                $this->cuota_entrada = floatval($cuota_entrada);
             }
 
             $this->getCalculoCuotaFinal();
@@ -68,10 +67,11 @@ class PlanesFinanciamientoController extends Controller
      */
     public function setParametrosTipoFinanciamiento($tipoFinanciamiento, $plazo)
     {
+        $this->plazo = (int)$plazo;
+
         if ($modelPlazo = TipoFinanciamientoPlazo::getModelTipoFinanciamientoPlazo($tipoFinanciamiento, $plazo)) {
             $this->porcentaje_cuota_entrada = $modelPlazo->cuota_entrada;
             $this->porcentaje_cuota_final = $modelPlazo->cuota_final;
-            $this->plazo = $modelPlazo->plazo;
             $this->tasa_financiamiento = $tipoFinanciamiento->tasa_financiamiento;
             $this->depreciacion_estimada = $modelPlazo->depreciacion_estimada;
             $this->porcentaje_entrada = $modelPlazo->porcentaje_entrada;
@@ -147,16 +147,16 @@ class PlanesFinanciamientoController extends Controller
     {
         $this->clear();
         $this->monto_total = floatval($monto_total);
+        $this->cuota_entrada = floatval($cuota_entrada);
+
         if ($this->setParametrosTipoFinanciamiento($tipoFinanciamiento, $plazo)) {
             if (!$cuota_entrada) {
                 $this->getCalculoCuotaInicial();
-            } else {
-                $this->cuota_entrada = floatval($cuota_entrada);
             }
 
-            $this->getCalculoMontoFinanciar();
-
-            $this->pago($this->monto_total);
+            $this->cuota_final = $this->monto_total;
+            $monto_total = $this->getCalculoMontoFinanciar();
+            $this->pago($monto_total);
         }
 
         return $this->data();
@@ -164,7 +164,7 @@ class PlanesFinanciamientoController extends Controller
 
     public function getCalculoMontoFinanciar()
     {
-        $this->monto_total = $this->monto_total - $this->cuota_entrada;
+        return $this->monto_total - $this->cuota_entrada;
     }
 
 

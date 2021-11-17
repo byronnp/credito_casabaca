@@ -3,6 +3,7 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\CreditController;
+use App\Http\Controllers\Backend\EmailController;
 
 /*
 |--------------------------------------------------------------------------
@@ -20,3 +21,5 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::post('index', [CreditController::class, 'cotizador'])->name('api.index.credit');
+
+Route::post('mail-test-drive', [EmailController::class, 'testDrive'])->name('email.test-drive');
